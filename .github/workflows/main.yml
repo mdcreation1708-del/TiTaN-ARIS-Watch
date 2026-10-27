@@ -1,18 +1,19 @@
 
-name: Build TiTaN ARIS Watch Android APK
+name: Build TiTaN ARIS Watch APK
 
 on:
   workflow_dispatch:
   push:
     paths:
       - "android/**"
-      - ".github/workflows/android-build.yml"
+      - ".github/workflows/main.yml"
 
 permissions:
   contents: read
 
 jobs:
   build:
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
@@ -27,12 +28,16 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          accept-android-sdk-licenses: true
 
-      - name: Install Android SDK packages
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses
+
+      - name: Install required Android SDK
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -41,11 +46,12 @@ jobs:
 
       - name: Build debug APK
         working-directory: android
-        run: gradle assembleDebug
+        run: gradle assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Upload APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: TiTaN-ARIS-Watch-debug-APK
+          name: TiTaN-ARIS-Watch-APK
           path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
