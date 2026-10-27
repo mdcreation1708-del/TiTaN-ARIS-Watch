@@ -29,6 +29,7 @@ jobs:
         with:
           accept-android-sdk-licenses: true
           cmdline-tools-version: 12266719
+          log-accepted-android-sdk-licenses: false
 
       - name: Install Android SDK packages
         run: |
@@ -39,7 +40,7 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      - name: Build debug APK
+      - name: Build APK
         working-directory: android
         run: gradle assembleDebug --stacktrace
 
@@ -48,3 +49,4 @@ jobs:
         with:
           name: TiTaN-ARIS-Watch-APK
           path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
